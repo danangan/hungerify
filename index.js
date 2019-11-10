@@ -1,6 +1,6 @@
-const IS_DEBUG = true;
+const IS_DEBUG = false;
 
-const DATE_TIME_FORMAT = "dddd, MMM Do hh:mm:ss";
+const DATE_TIME_FORMAT = "dddd, MMM Do HH:mm:ss";
 
 const durationFormatter = duration => {
   if (IS_DEBUG) {
@@ -9,11 +9,19 @@ const durationFormatter = duration => {
     )} minutes and ${duration.get("seconds")} seconds`;
   }
 
-  return `${duration.get("hours")} hours and ${duration.get("minutes")}`;
+  return `${duration.get("hours")} hours and ${duration.get(
+    "minutes"
+  )} minutes`;
 };
 
 const getNow = () => {
-  return moment().hours(12);
+  if (IS_DEBUG) {
+    return moment().hours(16);
+  } else return moment();
+};
+
+const getNextDay = () => {
+  return getNow().days(1, "add");
 };
 
 const getDateTime = () => {
@@ -34,6 +42,13 @@ const getStartEatingWindowToday = () => {
     .seconds(0);
 };
 
+const getStartEatingWindowNextDay = () => {
+  return getNextDay()
+    .hours(9)
+    .minutes(0)
+    .seconds(0);
+};
+
 const getDifferenceToEndEatingWindow = () => {
   const endTime = getEndEatingWindowToday();
   const now = getNow();
@@ -42,9 +57,16 @@ const getDifferenceToEndEatingWindow = () => {
 };
 
 const getDifferenceToStartEatingWindow = () => {
-  const startTime = getStartEatingWindowToday();
+  const startTimeToday = getStartEatingWindowToday();
+  const startTimeNextDay = getStartEatingWindowNextDay();
   const now = getNow();
-  const duration = moment.duration(now.diff(startTime));
+
+  if (now.isAfter(startTimeToday)) {
+    const duration = moment.duration(startTimeNextDay.diff(now));
+    return durationFormatter(duration);
+  }
+
+  const duration = moment.duration(startTimeToday.diff(now));
   return durationFormatter(duration);
 };
 
