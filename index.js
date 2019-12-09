@@ -1,19 +1,25 @@
 const App = () => {
   const [now, setNowTime] = React.useState(getNow());
-  const [isEatingWindow, setIsEatingWindow] = React.useState(
-    getIsEatingWindow(now)
-  );
+  const [startTime, setStartTime] = React.useState({
+    hour: '9',
+    minute: '0'
+  });
+  const [endTime, setEndTime] = React.useState({ hour: '15', minute: '0'});
 
   React.useEffect(() => {
+    console.log("useEffect");
     const interval = setInterval(() => {
       setNowTime(getNow());
-      setIsEatingWindow(getIsEatingWindow(now));
     }, 1000);
 
     return () => {
       clearInterval(interval);
     };
   }, []);
+
+  const isEatingWindow = getIsEatingWindow(now, startTime, endTime);
+
+  console.log("render");
 
   return (
     <div class={"app " + (isEatingWindow ? "eating-window" : "fasting")}>
@@ -24,21 +30,47 @@ const App = () => {
           {!isEatingWindow && (
             <>
               <h2>Time until your fast end</h2>
-              <h2>{getDifferenceToStartEatingWindow(now)}</h2>
+              <h2>{getDifferenceToStartEatingWindow(now, startTime)}</h2>
             </>
           )}
 
           {isEatingWindow && (
             <>
               <h2>Time until your eating window end </h2>
-              <h2>{getDifferenceToEndEatingWindow(now)}</h2>
+              <h2>{getDifferenceToEndEatingWindow(now, endTime)}</h2>
             </>
           )}
         </div>
         <h3>Your eating window</h3>
         <h3>
-          09.00 <i data-feather="arrow-right"></i> 15.00
+          {startTime.hour}:{startTime.minute} <i data-feather="arrow-right"></i>{" "}
+          {endTime.hour}:{endTime.minute}
         </h3>
+      </div>
+      <div>
+        <h3>Change eating window</h3>
+        <h3>Start Time</h3>
+        <div>
+          <input
+            type="time"
+            onChange={event => {
+              const hour = event.target.value.split(':')[0];
+              const minute = event.target.value.split(':')[1];
+              setStartTime({ hour, minute });
+            }}
+          />
+        </div>
+        <h3>End Time</h3>
+        <div>
+          <input
+            type="time"
+            onChange={event => {
+              const hour = event.target.value.split(':')[0];
+              const minute = event.target.value.split(':')[1];
+              setEndTime({ hour, minute });
+            }}
+          />
+        </div>
       </div>
     </div>
   );
@@ -47,7 +79,3 @@ const App = () => {
 ReactDOM.render(<App />, document.getElementById("root"));
 
 feather.replace();
-
-module.exports = {
-  getNow
-};

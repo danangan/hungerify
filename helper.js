@@ -27,39 +27,40 @@ const getDateTime = now => {
   return now.clone().format(DATE_TIME_FORMAT);
 };
 
-const getEndEatingWindowToday = now => {
+const getEndEatingWindowToday = (now, { hour, minute }) => {
+  console.log('{ hour, minute }', { hour, minute });
   const time = now.clone();
   return time
-    .hours(15)
-    .minutes(0)
+    .hours(hour)
+    .minutes(minute)
     .seconds(0);
 };
 
-const getStartEatingWindowToday = now => {
+const getStartEatingWindowToday = (now, { hour, minute }) => {
   const time = now.clone();
   return time
-    .hours(9)
-    .minutes(0)
+    .hours(hour)
+    .minutes(minute)
     .seconds(0);
 };
 
-const getStartEatingWindowNextDay = now => {
+const getStartEatingWindowNextDay = (now, { hour, minute }) => {
   const time = now.clone();
   return getNextDay(time)
-    .hours(9)
-    .minutes(0)
+    .hours(hour)
+    .minutes(minute)
     .seconds(0);
 };
 
-const getDifferenceToEndEatingWindow = now => {
-  const endTime = getEndEatingWindowToday(now);
-  const duration = moment.duration(endTime.diff(now));
+const getDifferenceToEndEatingWindow = (now, endTime) => {
+  const endTimeToday = getEndEatingWindowToday(now, endTime);
+  const duration = moment.duration(endTimeToday.diff(now));
   return durationFormatter(duration);
 };
 
-const getDifferenceToStartEatingWindow = now => {
-  const startTimeToday = getStartEatingWindowToday(now); // 9 today
-  const startTimeNextDay = getStartEatingWindowNextDay(now); // 9 tomorrow
+const getDifferenceToStartEatingWindow = (now, startTime) => {
+  const startTimeToday = getStartEatingWindowToday(now, startTime); // 9 today
+  const startTimeNextDay = getStartEatingWindowNextDay(now, startTime); // 9 tomorrow
 
   if (now.isAfter(startTimeToday)) {
     const duration = moment.duration(startTimeNextDay.diff(now));
@@ -70,9 +71,9 @@ const getDifferenceToStartEatingWindow = now => {
   return durationFormatter(duration);
 };
 
-const getIsEatingWindow = now => {
-  const startEatingWindowToday = getStartEatingWindowToday(now);
-  const endEatingWindowToday = getEndEatingWindowToday(now);
+const getIsEatingWindow = (now, startTime, endTime) => {
+  const startEatingWindowToday = getStartEatingWindowToday(now, startTime);
+  const endEatingWindowToday = getEndEatingWindowToday(now, endTime);
 
   return (
     now.isBefore(endEatingWindowToday) && now.isAfter(startEatingWindowToday)
@@ -97,14 +98,14 @@ function Test() {
   const now = getNow();
 
   console.log("TEST 1");
-  result = getIsEatingWindow(now);
+  result = getIsEatingWindow(now, { hour: 9, minute: 0 }, { hour: 15, minute: 0 });
   console.log(
     "getIsEatingWindow should be false, result: ",
     expect(result, false)
   );
 
   console.log("TEST 2");
-  result = getDifferenceToStartEatingWindow(now);
+  result = getDifferenceToStartEatingWindow(now, { hour: 9, minute: 0 });
   console.log(
     "getDifferenceToStartEatingWindow should be 17 hours, result: ",
     expect(result, "17 hours, 0 minutes and 0 seconds")
@@ -113,4 +114,4 @@ function Test() {
   IS_DEBUG = false;
 }
 
-Test();
+// Test();
