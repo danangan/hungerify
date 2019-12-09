@@ -1,16 +1,28 @@
+function formatHourMinute({ hour, minute }) {
+  return `${hour}:${minute}`;
+}
+
+formatHourMinute`test`;
+
 const App = () => {
   const [now, setNowTime] = React.useState(getNow());
   const [startTime, setStartTime] = React.useState({
-    hour: '9',
-    minute: '0'
+    hour: '09',
+    minute: '00'
   });
-  const [endTime, setEndTime] = React.useState({ hour: '15', minute: '0'});
+  const [endTime, setEndTime] = React.useState({ hour: '15', minute: '00'});
+
+  const startTimeInputRef = React.createRef();
+  const endTimeInputRef = React.createRef();
 
   React.useEffect(() => {
     console.log("useEffect");
     const interval = setInterval(() => {
       setNowTime(getNow());
     }, 1000);
+
+    startTimeInputRef.current.value = formatHourMinute(startTime)
+    endTimeInputRef.current.value = formatHourMinute(endTime)
 
     return () => {
       clearInterval(interval);
@@ -53,6 +65,7 @@ const App = () => {
         <div>
           <input
             type="time"
+            ref={startTimeInputRef}
             onChange={event => {
               const hour = event.target.value.split(':')[0];
               const minute = event.target.value.split(':')[1];
@@ -64,6 +77,7 @@ const App = () => {
         <div>
           <input
             type="time"
+            ref={endTimeInputRef}
             onChange={event => {
               const hour = event.target.value.split(':')[0];
               const minute = event.target.value.split(':')[1];
